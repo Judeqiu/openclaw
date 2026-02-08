@@ -8,9 +8,20 @@ services:
       CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY}
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
+      # Credential environment variables (from .env.credentials)
+      BRAVE_API_KEY: ${BRAVE_API_KEY:-}
+      MEMORY_BOT_TOKEN: ${MEMORY_BOT_TOKEN:-}
+      GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD:-}
+      TWITTER_AUTH_TOKEN: ${TWITTER_AUTH_TOKEN:-}
+      TWITTER_CT0: ${TWITTER_CT0:-}
+      POLYMARKET_API_KEY: ${POLYMARKET_API_KEY:-}
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
       - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
+      # Credential mounts - persist across container rebuilds
+      - ~/.config/notion:/home/node/.config/notion
+      - ~/.config/gcloud:/home/node/.config/gcloud:ro
+      - ~/.aws:/home/node/.aws:ro
     ports:
       - "${OPENCLAW_GATEWAY_PORT:-18789}:18789"
       - "${OPENCLAW_BRIDGE_PORT:-18790}:18790"
@@ -37,9 +48,20 @@ services:
       CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY}
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
+      # Credential environment variables (from .env.credentials)
+      BRAVE_API_KEY: ${BRAVE_API_KEY:-}
+      MEMORY_BOT_TOKEN: ${MEMORY_BOT_TOKEN:-}
+      GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD:-}
+      TWITTER_AUTH_TOKEN: ${TWITTER_AUTH_TOKEN:-}
+      TWITTER_CT0: ${TWITTER_CT0:-}
+      POLYMARKET_API_KEY: ${POLYMARKET_API_KEY:-}
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
       - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
+      # Credential mounts - persist across container rebuilds
+      - ~/.config/notion:/home/node/.config/notion
+      - ~/.config/gcloud:/home/node/.config/gcloud:ro
+      - ~/.aws:/home/node/.aws:ro
     stdin_open: true
     tty: true
     init: true

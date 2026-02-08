@@ -1,6 +1,9 @@
 node_modules
 **/node_modules/
 .env
+.env.credentials
+.env.credentials.local
+.env.credentials.backup
 docker-compose.extra.yml
 dist
 *.bun-build
