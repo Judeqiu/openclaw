@@ -6,6 +6,35 @@ ENV PATH="/root/.bun/bin:${PATH}"
 
 RUN corepack enable
 
+# Install Python pip for running Python scripts/tools
+# Install system libraries required for Playwright/Chromium browser automation
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      python3-pip \
+      python3-venv \
+      chromium \
+      fonts-liberation \
+      fonts-noto-color-emoji \
+      libnspr4 \
+      libnss3 \
+      libatk1.0-0 \
+      libatk-bridge2.0-0 \
+      libcups2 \
+      libdbus-1-3 \
+      libdrm2 \
+      libatspi2.0-0 \
+      libxcomposite1 \
+      libxdamage1 \
+      libxfixes3 \
+      libxrandr2 \
+      libgbm1 \
+      libxkbcommon0 \
+      libasound2 \
+      libpango-1.0-0 \
+      libcairo2 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+
 WORKDIR /app
 
 ARG OPENCLAW_DOCKER_APT_PACKAGES=""
