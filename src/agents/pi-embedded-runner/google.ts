@@ -366,10 +366,25 @@ export async function sanitizeSessionHistory(params: {
         modelId: params.modelId,
       })
     : false;
+  let roleConverted = repairedTools;
+  // Convert toolResult role to tool for OpenAI-compatible APIs (Moonshot, etc.)
+  if (
+    params.modelApi === "openai-completions" &&
+    params.provider !== "openai" &&
+    params.provider !== "openai-codex"
+  ) {
+    roleConverted = repairedTools.map((msg) => {
+      if (msg && typeof msg === "object" && (msg as { role?: string }).role === "toolResult") {
+        // Moonshot and other strict OpenAI-compatible APIs expect "tool" role, not "toolResult"
+        return { ...msg, role: "tool" } as unknown as AgentMessage;
+      }
+      return msg;
+    });
+  }
   const sanitizedOpenAI =
     isOpenAIResponsesApi && modelChanged
-      ? downgradeOpenAIReasoningBlocks(repairedTools)
-      : repairedTools;
+      ? downgradeOpenAIReasoningBlocks(roleConverted)
+      : roleConverted;
 
   if (hasSnapshot && (!priorSnapshot || modelChanged)) {
     appendModelSnapshot(params.sessionManager, {
