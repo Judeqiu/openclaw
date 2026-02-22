@@ -1,6 +1,19 @@
 services:
   openclaw-gateway:
     image: ${OPENCLAW_IMAGE:-openclaw:local}
+    # DNS workaround: Docker Desktop on macOS has UDP DNS forwarding issues
+    # We use extra_hosts to provide static IPs for critical services
+    extra_hosts:
+      - "slack.com:3.0.66.145"
+      - "wss-primary.slack.com:54.151.204.41"
+      - "api.telegram.org:149.154.167.220"
+      - "api.notion.com:208.103.161.1"
+      - "smtp.gmail.com:142.251.10.108"
+      - "www.googleapis.com:64.233.170.95"
+      - "moltbook.com:13.33.45.90"
+      - "google.com:142.251.10.138"
+      - "github.com:20.205.243.166"
+      - "cloudflare.com:104.16.132.229"
     environment:
       HOME: /home/node
       TERM: xterm-256color
@@ -8,13 +21,20 @@ services:
       CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY}
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
+      # Slack Socket Mode
+      SLACK_APP_TOKEN: ${SLACK_APP_TOKEN:-}
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
       # Credential environment variables (from .env.credentials)
+      KIMI_API_KEY: ${KIMI_API_KEY:-}
       BRAVE_API_KEY: ${BRAVE_API_KEY:-}
       MEMORY_BOT_TOKEN: ${MEMORY_BOT_TOKEN:-}
       GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD:-}
       TWITTER_AUTH_TOKEN: ${TWITTER_AUTH_TOKEN:-}
       TWITTER_CT0: ${TWITTER_CT0:-}
       POLYMARKET_API_KEY: ${POLYMARKET_API_KEY:-}
+      # WeChat
+      WECHAT_APP_ID: ${WECHAT_APP_ID:-}
+      WECHAT_APP_SECRET: ${WECHAT_APP_SECRET:-}
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
       - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
@@ -40,6 +60,18 @@ services:
 
   openclaw-cli:
     image: ${OPENCLAW_IMAGE:-openclaw:local}
+    # DNS workaround: Docker Desktop on macOS has UDP DNS forwarding issues
+    extra_hosts:
+      - "slack.com:3.0.66.145"
+      - "wss-primary.slack.com:54.151.204.41"
+      - "api.telegram.org:149.154.167.220"
+      - "api.notion.com:208.103.161.1"
+      - "smtp.gmail.com:142.251.10.108"
+      - "www.googleapis.com:64.233.170.95"
+      - "moltbook.com:13.33.45.90"
+      - "google.com:142.251.10.138"
+      - "github.com:20.205.243.166"
+      - "cloudflare.com:104.16.132.229"
     environment:
       HOME: /home/node
       TERM: xterm-256color
@@ -49,12 +81,16 @@ services:
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
       # Credential environment variables (from .env.credentials)
+      KIMI_API_KEY: ${KIMI_API_KEY:-}
       BRAVE_API_KEY: ${BRAVE_API_KEY:-}
       MEMORY_BOT_TOKEN: ${MEMORY_BOT_TOKEN:-}
       GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD:-}
       TWITTER_AUTH_TOKEN: ${TWITTER_AUTH_TOKEN:-}
       TWITTER_CT0: ${TWITTER_CT0:-}
       POLYMARKET_API_KEY: ${POLYMARKET_API_KEY:-}
+      # WeChat
+      WECHAT_APP_ID: ${WECHAT_APP_ID:-}
+      WECHAT_APP_SECRET: ${WECHAT_APP_SECRET:-}
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
       - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace

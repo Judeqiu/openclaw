@@ -1,54 +1,32 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import "./test-mocks.js";
 import { markBlueBubblesChatRead, sendBlueBubblesTyping, setGroupIconBlueBubbles } from "./chat.js";
-
-vi.mock("./accounts.js", () => ({
-  resolveBlueBubblesAccount: vi.fn(({ cfg, accountId }) => {
-    const config = cfg?.channels?.bluebubbles ?? {};
-    return {
-      accountId: accountId ?? "default",
-      enabled: config.enabled !== false,
-      configured: Boolean(config.serverUrl && config.password),
-      config,
-    };
-  }),
-}));
+import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
+import { installBlueBubblesFetchTestHooks } from "./test-harness.js";
 
 const mockFetch = vi.fn();
 
+installBlueBubblesFetchTestHooks({
+  mockFetch,
+  privateApiStatusMock: vi.mocked(getCachedBlueBubblesPrivateApiStatus),
+});
+
 describe("chat", () => {
-  beforeEach(() => {
-    vi.stubGlobal("fetch", mockFetch);
-    mockFetch.mockReset();
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
   describe("markBlueBubblesChatRead", () => {
-    it("does nothing when chatGuid is empty", async () => {
-      await markBlueBubblesChatRead("", {
-        serverUrl: "http://localhost:1234",
-        password: "test",
-      });
+    it("does nothing when chatGuid is empty or whitespace", async () => {
+      for (const chatGuid of ["", "   "]) {
+        await markBlueBubblesChatRead(chatGuid, {
+          serverUrl: "http://localhost:1234",
+          password: "test",
+        });
+      }
       expect(mockFetch).not.toHaveBeenCalled();
     });
 
-    it("does nothing when chatGuid is whitespace", async () => {
-      await markBlueBubblesChatRead("   ", {
-        serverUrl: "http://localhost:1234",
-        password: "test",
-      });
-      expect(mockFetch).not.toHaveBeenCalled();
-    });
-
-    it("throws when serverUrl is missing", async () => {
+    it("throws when required credentials are missing", async () => {
       await expect(markBlueBubblesChatRead("chat-guid", {})).rejects.toThrow(
         "serverUrl is required",
       );
-    });
-
-    it("throws when password is missing", async () => {
       await expect(
         markBlueBubblesChatRead("chat-guid", {
           serverUrl: "http://localhost:1234",
@@ -71,6 +49,17 @@ describe("chat", () => {
         expect.stringContaining("/api/v1/chat/iMessage%3B-%3B%2B15551234567/read"),
         expect.objectContaining({ method: "POST" }),
       );
+    });
+
+    it("does not send read receipt when private API is disabled", async () => {
+      vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValueOnce(false);
+
+      await markBlueBubblesChatRead("iMessage;-;+15551234567", {
+        serverUrl: "http://localhost:1234",
+        password: "test-password",
+      });
+
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it("includes password in URL query", async () => {
@@ -143,29 +132,20 @@ describe("chat", () => {
   });
 
   describe("sendBlueBubblesTyping", () => {
-    it("does nothing when chatGuid is empty", async () => {
-      await sendBlueBubblesTyping("", true, {
-        serverUrl: "http://localhost:1234",
-        password: "test",
-      });
+    it("does nothing when chatGuid is empty or whitespace", async () => {
+      for (const chatGuid of ["", "   "]) {
+        await sendBlueBubblesTyping(chatGuid, true, {
+          serverUrl: "http://localhost:1234",
+          password: "test",
+        });
+      }
       expect(mockFetch).not.toHaveBeenCalled();
     });
 
-    it("does nothing when chatGuid is whitespace", async () => {
-      await sendBlueBubblesTyping("   ", false, {
-        serverUrl: "http://localhost:1234",
-        password: "test",
-      });
-      expect(mockFetch).not.toHaveBeenCalled();
-    });
-
-    it("throws when serverUrl is missing", async () => {
+    it("throws when required credentials are missing", async () => {
       await expect(sendBlueBubblesTyping("chat-guid", true, {})).rejects.toThrow(
         "serverUrl is required",
       );
-    });
-
-    it("throws when password is missing", async () => {
       await expect(
         sendBlueBubblesTyping("chat-guid", true, {
           serverUrl: "http://localhost:1234",
@@ -188,6 +168,17 @@ describe("chat", () => {
         expect.stringContaining("/api/v1/chat/iMessage%3B-%3B%2B15551234567/typing"),
         expect.objectContaining({ method: "POST" }),
       );
+    });
+
+    it("does not send typing when private API is disabled", async () => {
+      vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValueOnce(false);
+
+      await sendBlueBubblesTyping("iMessage;-;+15551234567", true, {
+        serverUrl: "http://localhost:1234",
+        password: "test",
+      });
+
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it("sends typing stop with DELETE method", async () => {
@@ -334,18 +325,26 @@ describe("chat", () => {
       ).rejects.toThrow("image buffer");
     });
 
-    it("throws when serverUrl is missing", async () => {
+    it("throws when required credentials are missing", async () => {
       await expect(
         setGroupIconBlueBubbles("chat-guid", new Uint8Array([1, 2, 3]), "icon.png", {}),
       ).rejects.toThrow("serverUrl is required");
-    });
-
-    it("throws when password is missing", async () => {
       await expect(
         setGroupIconBlueBubbles("chat-guid", new Uint8Array([1, 2, 3]), "icon.png", {
           serverUrl: "http://localhost:1234",
         }),
       ).rejects.toThrow("password is required");
+    });
+
+    it("throws when private API is disabled", async () => {
+      vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValueOnce(false);
+      await expect(
+        setGroupIconBlueBubbles("chat-guid", new Uint8Array([1, 2, 3]), "icon.png", {
+          serverUrl: "http://localhost:1234",
+          password: "test",
+        }),
+      ).rejects.toThrow("requires Private API");
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it("sets group icon successfully", async () => {
