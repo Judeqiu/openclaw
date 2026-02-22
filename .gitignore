@@ -96,3 +96,8 @@ package-lock.json
 
 # Local iOS signing overrides
 apps/ios/LocalSigning.xcconfig
+# Snapshot files
+openclaw-snapshot-*.tar.gz
+*.tar
+.env.backup.*
+.env.bak

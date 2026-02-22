@@ -1,0 +1,54 @@
+# OpenClaw Cloud Deployment Environment Variables
+# Copy this to .env and fill in your values
+
+# ═══════════════════════════════════════════════════════════════
+# REQUIRED SETTINGS
+# ═══════════════════════════════════════════════════════════════
+
+# Generate a secure random token (e.g., use: openssl rand -hex 32)
+OPENCLAW_GATEWAY_TOKEN=change-me-to-a-secure-random-token
+
+# ═══════════════════════════════════════════════════════════════
+# SLACK CONFIGURATION (Optional - only if using Slack)
+# ═══════════════════════════════════════════════════════════════
+
+# Get these from https://api.slack.com/apps
+# App-Level Token (starts with xapp-)
+SLACK_APP_TOKEN=
+
+# Bot User OAuth Token (starts with xoxb-)
+SLACK_BOT_TOKEN=
+
+# ═══════════════════════════════════════════════════════════════
+# API KEYS (Add the ones you need)
+# ═══════════════════════════════════════════════════════════════
+
+# Kimi API Key (for AI model access)
+KIMI_API_KEY=
+
+# Brave Search API Key
+BRAVE_API_KEY=
+
+# Memory Bot Token (if using memory features)
+MEMORY_BOT_TOKEN=
+
+# Gmail App Password (if using email features)
+GMAIL_APP_PASSWORD=
+
+# Twitter/X Credentials (if using Twitter integration)
+TWITTER_AUTH_TOKEN=
+TWITTER_CT0=
+
+# Notion Integration Token (if using Notion)
+NOTION_TOKEN=
+
+# ═══════════════════════════════════════════════════════════════
+# OPTIONAL SETTINGS
+# ═══════════════════════════════════════════════════════════════
+
+# Model Configuration (defaults to kimi-coding/kimi-for-coding)
+# DEFAULT_MODEL=kimi-coding/kimi-for-coding
+
+# Heartbeat Configuration
+# HEARTBEAT_ENABLED=true
+# HEARTBEAT_INTERVAL=300
