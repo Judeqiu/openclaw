@@ -101,3 +101,8 @@ openclaw-snapshot-*.tar.gz
 *.tar
 .env.backup.*
 .env.bak
+
+# Cache files
+.serena/
+.cache/
+*.pkl
